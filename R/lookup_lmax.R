@@ -14,7 +14,7 @@ lookup_lmax <- function(spp_table) {
   group_lmax_est <- function(lmax_table, taxa_table, groupvar = "Species"){
 
     lmax_table %>%
-      dplyr::left_join(taxa_table) %>%
+      dplyr::left_join(taxa_table, by = "Species") %>%
       dplyr::group_by_at(groupvar)  %>%
       dplyr::summarise(Lmax = mean(Lmax, na.rm = T),
                 .groups = "drop") %>%
@@ -27,11 +27,12 @@ lookup_lmax <- function(spp_table) {
 
   spp_table %>%
     dplyr::left_join(taxa_table) %>%
-    dplyr::left_join(group_lmax_est(lmax_table, taxa_table, groupvar = "Species")) %>%
-    dplyr::left_join(group_lmax_est(lmax_table, taxa_table, groupvar = "Genus")) %>%
-    dplyr::left_join(group_lmax_est(lmax_table, taxa_table, groupvar = "Order")) %>%
-    dplyr::left_join(group_lmax_est(lmax_table, taxa_table, groupvar = "Class")) %>%
-    dplyr::left_join(group_lmax_est(lmax_table, taxa_table, groupvar = "Phylum")) %>%
-    dplyr::mutate(Lmax = dplyr::coalesce(Species_Lmax, Genus_Lmax, Order_Lmax, Class_Lmax, Phylum_Lmax)) %>%
+    dplyr::left_join(group_lmax_est(lmax_table, taxa_table, groupvar = "Species"), by = "Species") %>%
+    dplyr::left_join(group_lmax_est(lmax_table, taxa_table, groupvar = "Genus"), by = "Genus") %>%
+    dplyr::left_join(group_lmax_est(lmax_table, taxa_table, groupvar = "Order"), by = "Order") %>%
+    dplyr::left_join(group_lmax_est(lmax_table, taxa_table, groupvar = "Class"), by = "Class") %>%
+    dplyr::left_join(group_lmax_est(lmax_table, taxa_table, groupvar = "Phylum"), by = "Phylum") %>%
+    dplyr::left_join(group_lmax_est(lmax_table, taxa_table, groupvar = "Kingdom"), by = "Kingdom") %>%
+    dplyr::mutate(Lmax = dplyr::coalesce(Species_Lmax, Genus_Lmax, Order_Lmax, Class_Lmax, Phylum_Lmax, Kingdom_Lmax)) %>%
     dplyr::select(names(spp_table), Lmax)
 }

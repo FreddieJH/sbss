@@ -10,13 +10,13 @@
 #' @export
 lookup_lw <- function(spp_table) {
 
-    lw_table <- load_lw()
+    lw_table   <- load_lw()
     taxa_table <- load_taxalist()
 
     group_lw_est <- function(lw_table, taxa_table, groupvar = "Species"){
 
       lw_table %>%
-        dplyr::left_join(taxa_table) %>%
+        dplyr::left_join(taxa_table, by = "Species") %>%
         dplyr::group_by_at(groupvar)  %>%
         dplyr::summarise(a = mean(a, na.rm = T),
                          b = mean(b, na.rm = T),
