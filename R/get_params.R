@@ -48,9 +48,19 @@ load_taxalist <- function(){
 #' @return A matrix of the infile
 #' @export
 load_lmax <- function(){
-  dplyr::bind_rows(
-    rfishbase::popchar(server = "sealifebase"),
-    rfishbase::popchar(server = "fishbase")
-  )
+
+  slb <-
+    rfishbase::popchar(server = "sealifebase") |>
+    dplyr::mutate(Lmax = as.numeric(Lmax)) |>
+    dplyr::select(species = Species,
+           lmax = Lmax)
+
+  fb <-
+    rfishbase::popchar(server = "fishbase") |>
+    dplyr::mutate(Lmax = as.numeric(Lmax)) |>
+    dplyr::select(species = Species,
+           lmax = Lmax)
+
+  dplyr::bind_rows(slb, fb)
 
 }

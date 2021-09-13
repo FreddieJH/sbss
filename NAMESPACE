@@ -3,7 +3,6 @@
 export("%>%")
 export(calc_CSS)
 export(estimate_SSD_params)
-export(hello)
 export(load_lmax)
 export(load_lw)
 export(load_taxalist)
