@@ -4,14 +4,14 @@
 \alias{plot_CSS}
 \title{Plot community size spectrum}
 \usage{
-plot_CSS(.df, normalised = T, logbase = 2)
+plot_CSS(data, normalised = T, logbase = 2)
 }
 \arguments{
+\item{data}{Table of mass, normalised density, and density}
+
 \item{normalised}{Logical option of normalised (TRUE) or non-normalised (FALSE)}
 
 \item{logbase}{The chosen logbase for the plotting}
-
-\item{x}{Table of mass, normalised density, and density}
 }
 \value{
 A ggplot figure

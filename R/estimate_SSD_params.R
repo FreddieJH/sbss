@@ -8,7 +8,7 @@
 #' @export
 estimate_SSD_params <- function(x){
   x %>%
-    dplyr::mutate(Mmax = a*(Lmax^b)) %>%
-    dplyr::mutate(meanlog = -1.010 + (0.781*log(Mmax)),
+    dplyr::mutate(Mmax = {{ "a" }}*({{ "Lmax" }}^{{ "b" }})) %>%
+    dplyr::mutate(meanlog = -1.010 + (0.781*log({{ "Mmax" }})),
                   sdlog = 0.995)
 }

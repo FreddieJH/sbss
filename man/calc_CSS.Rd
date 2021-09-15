@@ -2,12 +2,14 @@
 % Please edit documentation in R/calc_CSS.R
 \name{calc_CSS}
 \alias{calc_CSS}
-\title{Calculate the commuinity size spectrum}
+\title{Calculate the community size spectrum}
 \usage{
-calc_CSS(x, group_var)
+calc_CSS(data, group_var)
 }
 \arguments{
-\item{x}{A tibble or dataframe with Species, rel_abun, meanlog, sdlog, Mmax, and a grouping variable (e.g. site)}
+\item{data}{A tibble or dataframe with Species, rel_abun, meanlog, sdlog, Mmax, and a grouping variable (e.g. site)}
+
+\item{group_var}{A string of the desired grouping variable}
 }
 \value{
 A tibble of normalised and non-normalised abundance with body size (m)

@@ -29,10 +29,7 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 ```{r, eval = FALSE}
 
 # install.packages("devtools")
-library(devtools)
-
 devtools::install_github("freddiejh/sbss")
-library(sbss)
 
 ```
 
@@ -42,15 +39,18 @@ library(sbss)
 ```{r, message = FALSE}
 
 library(sbss)
-library(dplyr)
 
-# my_spp <-
-#   load_taxalist() %>% 
-#   head(6) %>%
-#   dplyr::select(Species)
-# 
-# lookup_lmax(my_spp)
-# lookup_lw(my_spp)
+# Get asymptotic mass values for a list of species
+example_species |> 
+  lookup_lmax(full_load = F)
+
+
+# Get length-weight parameter (a, b) estimates for a list of species
+example_species |> 
+  lookup_lw(full_load = F)
+
+
+
 
 ```
 

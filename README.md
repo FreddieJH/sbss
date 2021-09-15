@@ -16,25 +16,40 @@ species-level information, including in data-poor situations.
 
 ``` r
 # install.packages("devtools")
-library(devtools)
-
 devtools::install_github("freddiejh/sbss")
-library(sbss)
 ```
 
 ## Usage
 
 ``` r
 library(sbss)
-library(dplyr)
 
-# my_spp <-
-#   load_taxalist() %>% 
-#   head(6) %>%
-#   dplyr::select(Species)
-# 
-# lookup_lmax(my_spp)
-# lookup_lw(my_spp)
+# Get asymptotic mass values for a list of species
+example_species |> 
+  lookup_lmax(full_load = F)
+#> # A tibble: 20 x 2
+#>   Species                   Lmax
+#>   <chr>                    <dbl>
+#> 1 Acrilloscala lamyi        6.29
+#> 2 Acropora samoensis        3   
+#> 3 Novactaea bella          13.0 
+#> 4 Collisella asmi           8.68
+#> 5 Echinorhynchus debenhami 46.2 
+#> # ... with 15 more rows
+
+
+# Get length-weight parameter (a, b) estimates for a list of species
+example_species |> 
+  lookup_lw(full_load = F)
+#> # A tibble: 20 x 3
+#>   Species                       a     b
+#>   <chr>                     <dbl> <dbl>
+#> 1 Acrilloscala lamyi       0.462   2.82
+#> 2 Acropora samoensis       0.0059  2.82
+#> 3 Novactaea bella          0.495   2.86
+#> 4 Collisella asmi          0.204   3.06
+#> 5 Echinorhynchus debenhami 0.142   3.00
+#> # ... with 15 more rows
 ```
 
 ## Getting help

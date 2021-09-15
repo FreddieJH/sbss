@@ -4,10 +4,12 @@
 \alias{lookup_lmax}
 \title{Clean length-weight ests}
 \usage{
-lookup_lmax(spp_table)
+lookup_lmax(spp_table, full_load = F)
 }
 \arguments{
-\item{spp_lmax_tab}{A tibble or dataframe with a column of species names ("species_name") and a column of lmax ("species_lmax")}
+\item{spp_table}{A tibble or dataframe with a column of species names ("species")}
+
+\item{full_load}{logical, if TRUE will pull values from Fishbase and Sealifebase.}
 }
 \value{
 A tibble of length-weight variables

@@ -4,14 +4,18 @@
 \alias{plot_SSDs}
 \title{Plot species size distributions}
 \usage{
-plot_SSDs(.df, log = F, logbase = NA, max_x = 100, max_y = 0.5)
+plot_SSDs(data, log = F, logbase = NA, max_x = 100, max_y = 0.5)
 }
 \arguments{
-\item{.df}{Dataframe or tibble}
+\item{data}{Dataframe or tibble}
+
+\item{log}{Logical arument for logged axes}
 
 \item{logbase}{The chosen logbase for the plotting}
 
-\item{normalised}{Logical option of normalised (TRUE) or non-normalised (FALSE)}
+\item{max_x}{Numeric value determining the limit of the x-axis}
+
+\item{max_y}{Numeric value determining the limit of the y-axis}
 }
 \value{
 A ggplot figure

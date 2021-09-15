@@ -4,13 +4,15 @@
 \alias{lookup_lw}
 \title{Clean length-weight ests}
 \usage{
-lookup_lw(spp_table)
+lookup_lw(spp_table, full_load = T)
 }
 \arguments{
-\item{spp_lmax_tab}{A tibble or dataframe with a column of species names ("species_name") and a column of lmax ("species_lmax")}
+\item{spp_table}{tibble or dataframe with a column of species names (species_name) and a column of lmax (species_lmax)}
+
+\item{full_load}{logical, if TRUE will load from Fishbase and Sealifebase}
 }
 \value{
-A tibble of length-weight variables
+tibble of length-weight variables
 }
 \description{
 This function cleans length-weight estimates from sealifebase and fishbase.

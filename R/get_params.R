@@ -5,16 +5,31 @@
 #'
 #' @return A tibble of length-weight parameters
 #' @export
+#' @import rlang
+#' @import dplyr
+#' @importFrom rfishbase length_weight
+#' @import tibble
 load_lw <- function(){
-  dplyr::bind_rows(
-    rfishbase::length_weight(server = "sealifebase") %>%
-      tibble::as_tibble() %>%
-      dplyr::select(Species, a, b),
-    rfishbase::length_weight(server = "fishbase") %>%
-      tibble::as_tibble() %>%
-      dplyr::select(Species, a, b)
-  ) %>%
-    tibble::as_tibble()
+
+
+  slb <-
+    length_weight(server = "sealifebase") %>%
+    as_tibble() %>%
+    select(.data[["Species"]],
+                  .data[["a"]],
+                  .data[["b"]])
+
+
+  fb <-
+    length_weight(server = "fishbase") %>%
+    as_tibble() %>%
+    select(.data[["Species"]],
+                  .data[["a"]],
+                  .data[["b"]])
+
+  bind_rows(slb, fb) %>%
+    as_tibble()
+
 }
 
 
@@ -24,17 +39,36 @@ load_lw <- function(){
 #'
 #' @return A tibble of taxa
 #' @export
+#' @import rlang
+#' @import dplyr
+#' @importFrom rfishbase load_taxa
 load_taxalist <- function(){
-  dplyr::bind_rows(
-    rfishbase::load_taxa(server = "sealifebase") %>%
-      tibble::as_tibble() %>%
-      dplyr::select(Species, Genus, Family, Order, Class, Phylum, Kingdom),
-    rfishbase::load_taxa(server = "fishbase") %>%
-      tibble::as_tibble() %>%
-      dplyr::mutate(Phylum = "Chordata",
-                    Kingdom = "Animalia") %>%
-      dplyr::select(Species, Genus, Family, Order, Class, Phylum, Kingdom)
-  )
+
+  slb <-
+    load_taxa(server = "sealifebase") |>
+    as_tibble() |>
+    select(.data[["Species"]],
+                  .data[["Genus"]],
+                  .data[["Family"]],
+                  .data[["Order"]],
+                  .data[["Class"]],
+                  .data[["Phylum"]],
+                  .data[["Kingdom"]])
+
+  fb <-
+    load_taxa(server = "fishbase") |>
+    as_tibble() |>
+    mutate(Phylum = "Chordata",
+                  Kingdom = "Animalia") |>
+    select(.data[["Species"]],
+                  .data[["Genus"]],
+                  .data[["Family"]],
+                  .data[["Order"]],
+                  .data[["Class"]],
+                  .data[["Phylum"]],
+                  .data[["Kingdom"]])
+
+  bind_rows(slb, fb)
 
 }
 
@@ -47,20 +81,23 @@ load_taxalist <- function(){
 #'
 #' @return A matrix of the infile
 #' @export
+#' @import rlang
+#' @import dplyr
+#' @importFrom rfishbase popchar
 load_lmax <- function(){
 
   slb <-
-    rfishbase::popchar(server = "sealifebase") |>
-    dplyr::mutate(Lmax = as.numeric(Lmax)) |>
-    dplyr::select(species = Species,
-           lmax = Lmax)
+    popchar(server = "sealifebase") |>
+    mutate(Lmax = as.numeric(Lmax)) |>
+    select(.data[["Species"]], .data[["Lmax"]])
 
   fb <-
-    rfishbase::popchar(server = "fishbase") |>
-    dplyr::mutate(Lmax = as.numeric(Lmax)) |>
-    dplyr::select(species = Species,
-           lmax = Lmax)
+    popchar(server = "fishbase") |>
+    mutate(Lmax = as.numeric(.data[["Lmax"]])) |>
+    select(.data[["Species"]], .data[["Lmax"]])
 
-  dplyr::bind_rows(slb, fb)
+  bind_rows(slb, fb)
 
 }
+
+

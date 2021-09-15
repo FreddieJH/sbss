@@ -1,76 +1,118 @@
+#' @title Sum up species size distributions
+#'
+#' @description Weighted sum of log-normal species body size distributions
+#'
+#' @param x vector of quantiles
+#' @param meanlog vector of lognormal meanlog parameters (mean)
+#' @param sdlog vector of lognormal sdlog parameters (standard devaiation)
+#' @param weight vector of weights (likely the relative abundance of the species)
+#'
+#' @return vector of probabilities
+#'
+#' @export
+sum_SSD <- function(x, meanlog, sdlog, weight){
 
-# Sum up species size distributions
-sum_SSD <- function(x, meanlog_vec, sdlog_vec, weight_vec){
   totl <- rep(0, length(x))
-  for(i in seq_along(meanlog_vec)){
-    totl <- totl + weight_vec[i]*dlnorm(x       = x,
-                                        meanlog = meanlog_vec[i],
-                                        sdlog   = sdlog_vec[i])
+
+  for (i in seq_along(meanlog)) {
+    totl <- totl + weight[i]*stats::dlnorm(x       = x,
+                                           meanlog = meanlog[i],
+                                           sdlog   = sdlog[i])
   }
+
   return(totl)
 }
 
+#' @title Integrate community size distribution
+#'
+#' @description Integrates over the summed species
+#'
+#' @param sdlog table with
+#' @param meanlog table with
+#' @param rel_abun table with
+#' @param min min limit of integration
+#' @param max max limit of integration
+#'
+#' @return integral of function
+#'
+#' @export
+integrate_CSD <- function(sdlog, meanlog, rel_abun,  min, max) {
+  stats::integrate(function(x) sum_SSD(x,
+                                       sdlog = sdlog,
+                                       meanlog = meanlog,
+                                       weight = rel_abun),
+                   lower = min,
+                   upper = max)$value
+}
 
 
-# function to sum lnorms
-integrate_CSD <- function(df, min, max) integrate(function(x) sum_SSD(x,
-                                                                    sdlog_vec = df$sdlog,
-                                                                    meanlog_vec = df$meanlog,
-                                                                    weight_vec = df$rel_abun),
-                                               lower = min,
-                                               upper = max)$value
-
-
-# create empty logbins to be used to fill in with estimated abundance
+#' @title Create log bin table
+#'
+#' @description Create an empty log bin table
+#'
+#' @param max numeric value of maximum size
+#' @param logbase numeric value of log base to be used
+#'
+#' @return A tibble of log bins
+#'
+#' @export
+#' @importFrom rlang .data
+#' @import dplyr
 create_empty_logbins <- function(max, logbase = exp(1)){
 
-  max_bin <- log(max, base = logbase) %>% ceiling()
+  max_bin <- max |> log(base = logbase) |> ceiling()
 
   data.frame(bin_num = 1:max_bin) %>%
     dplyr::mutate(
-      bin_floor = logbase^bin_num,
-      bin_ceiling = logbase^(bin_num + 1),
-      bin_mid = (bin_floor + bin_ceiling) / 2,
-      bin_width = bin_ceiling - bin_floor
+      bin_floor = logbase^.data[["bin_num"]],
+      bin_ceiling = logbase^(.data[["bin_num"]] + 1),
+      bin_mid = (.data[["bin_floor"]] + .data[["bin_ceiling"]]) / 2,
+      bin_width = .data[["bin_ceiling"]] - .data[["bin_floor"]]
     )
 }
 
 
-#' Calculate the commuinity size spectrum
+
+#' @title Calculate the community size spectrum
 #'
-#' This function estimates a size spectrum based on
+#' @description This function estimates a size spectrum based on
 #'
-#' @param x A tibble or dataframe with Species, rel_abun, meanlog, sdlog, Mmax, and a grouping variable (e.g. site)
+#' @param data A tibble or dataframe with Species, rel_abun, meanlog, sdlog, Mmax, and a grouping variable (e.g. site)
+#' @param group_var A string of the desired grouping variable
+#'
 #' @return A tibble of normalised and non-normalised abundance with body size (m)
+#'
 #' @export
-calc_CSS <- function(x, group_var) {
+#' @importFrom rlang .data
+calc_CSS <- function(data, group_var) {
 
-  x.trim <- x %>% tidyr::drop_na(meanlog, sdlog, rel_abun)
 
-  if(nrow(x.trim) < nrow(x)){
+  data_trim <- data %>% tidyr::drop_na(data$meanlog, data$sdlog, data$rel_abun)
+
+  if (nrow(data_trim) < nrow(data)) {
 
     print("Excluded species: ")
 
-    x %>%
-      dplyr::filter(!(x$Species %in% x.trim$Species)) %>%
-      dplyr::pull(Species) %>%
+    data %>%
+      dplyr::filter(!(.data[["Species"]] %in% data_trim$Species)) %>%
+      dplyr::pull(.data[["Species"]]) %>%
       print()
 
   }
 
-  x.trim %>%
+  data_trim %>%
     dplyr::group_by_at(group_var) %>%
     tidyr::nest() %>%
     dplyr::mutate(total_abun = purrr::map_dbl(data, ~sum(.$rel_abun, na.rm = T))) %>%
     dplyr::mutate(max_size = purrr::map_dbl(data, ~max(.$Mmax, na.rm = T))) %>%
-    dplyr::mutate(empty_table = list(create_empty_logbins(max(max_size, na.rm = T), logbase = 2))) %>%
-    tidyr::unnest(cols = c(empty_table)) %>%
-    dplyr::mutate(n_s_fit = purrr::pmap_dbl(.l = list(data, bin_floor, bin_ceiling), integrate_CSD)) %>%
+    dplyr::mutate(empty_table = list(create_empty_logbins(max(.data[["max_size"]], na.rm = T), logbase = 2))) %>%
+    tidyr::unnest(cols = c(.data[["empty_table"]])) %>%
+    dplyr::mutate(n_s_fit = purrr::pmap_dbl(.l = list(data, .data[["bin_floor"]], .data[["bin_ceiling"]]), integrate_CSD)) %>%
     dplyr::select(-data) %>%
-    dplyr::mutate(pm_s = n_s_fit/total_abun) %>%
-    dplyr::rename(m = bin_mid) %>%
-    dplyr::mutate(norm_density = n_s_fit/bin_width) %>%
-    dplyr::mutate(density = n_s_fit) %>%
-    dplyr::select(group, m, norm_density, density)
+    dplyr::mutate(pm_s = .data[["n_s_fit"]]/.data[["total_abun"]]) %>%
+    dplyr::rename(m = .data[["bin_mid"]]) %>%
+    dplyr::mutate(norm_density = .data[["n_s_fit"]]/.data[["bin_width"]]) %>%
+    dplyr::mutate(density = {"n_s_fit"}) %>%
+    dplyr::select(.data[["group"]], .data[["m"]], .data[["norm_density"]], .data[["density"]])
 
 }
