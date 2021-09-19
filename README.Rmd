@@ -40,16 +40,42 @@ devtools::install_github("freddiejh/sbss")
 
 library(sbss)
 
-# Get asymptotic mass values for a list of species
-example_species |> 
+# Get asymptotic mass values for a list of species (column in tibble)
+example_data |> 
   lookup_lmax(full_load = F)
 
 
 # Get length-weight parameter (a, b) estimates for a list of species
-example_species |> 
+example_data |> 
   lookup_lw(full_load = F)
 
 
+example_data |> 
+  lookup_lmax(full_load = F) |> 
+  lookup_lw(full_load = F) |> 
+  estimate_SSD_params()
+
+
+example_data |> 
+  lookup_lmax(full_load = F) |> 
+  lookup_lw(full_load = F) |> 
+  estimate_SSD_params() |> 
+  calc_CSS(group_var = "site")
+
+
+example_data |> 
+  lookup_lmax(full_load = F) |> 
+  lookup_lw(full_load = F) |> 
+  estimate_SSD_params() |> 
+  calc_CSS(group_var = "site") |> 
+  plot_CSS()
+
+
+example_data |> 
+  lookup_lmax(full_load = F) |> 
+  lookup_lw(full_load = F) |> 
+  estimate_SSD_params() |> 
+  plot_SSDs(legend = F) 
 
 
 ```

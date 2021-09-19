@@ -6,10 +6,10 @@
 #' If no appropriate length-weight estimate is available for a species, the mean
 #' for a lower taxonomic level will be used
 #'
-#' @param spp_table A tibble or dataframe with a column of species names ("species")
+#' @param spp_table A tibble vector of species names
 #' @param full_load logical, if TRUE will pull values from Fishbase and Sealifebase.
 #'
-#' @return A tibble of length-weight variables
+#' @return A tibble of assymptotic length variables
 #'
 #' @export
 #' @import rlang

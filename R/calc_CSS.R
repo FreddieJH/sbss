@@ -36,11 +36,11 @@ sum_SSD <- function(x, meanlog, sdlog, weight){
 #' @return integral of function
 #'
 #' @export
-integrate_CSD <- function(sdlog, meanlog, rel_abun,  min, max) {
+integrate_CSD <- function(data, min, max, abundance_colname = "abundance") {
   stats::integrate(function(x) sum_SSD(x,
-                                       sdlog = sdlog,
-                                       meanlog = meanlog,
-                                       weight = rel_abun),
+                                       sdlog   = data[["sdlog"]],
+                                       meanlog = data[["meanlog"]],
+                                       weight  = data[[abundance_colname]]),
                    lower = min,
                    upper = max)$value
 }
@@ -84,10 +84,10 @@ create_empty_logbins <- function(max, logbase = exp(1)){
 #'
 #' @export
 #' @importFrom rlang .data
-calc_CSS <- function(data, group_var) {
+calc_CSS <- function(data, group_var, abundance_colname = "abundance") {
 
 
-  data_trim <- data %>% tidyr::drop_na(data$meanlog, data$sdlog, data$rel_abun)
+  data_trim <- data %>% tidyr::drop_na(.data[["meanlog"]], .data[["sdlog"]], .data[[abundance_colname]])
 
   if (nrow(data_trim) < nrow(data)) {
 
@@ -103,16 +103,19 @@ calc_CSS <- function(data, group_var) {
   data_trim %>%
     dplyr::group_by_at(group_var) %>%
     tidyr::nest() %>%
-    dplyr::mutate(total_abun = purrr::map_dbl(data, ~sum(.$rel_abun, na.rm = T))) %>%
+    dplyr::mutate(total_abun = purrr::map_dbl(data, ~sum(.[[abundance_colname]], na.rm = T))) %>%
     dplyr::mutate(max_size = purrr::map_dbl(data, ~max(.$Mmax, na.rm = T))) %>%
     dplyr::mutate(empty_table = list(create_empty_logbins(max(.data[["max_size"]], na.rm = T), logbase = 2))) %>%
     tidyr::unnest(cols = c(.data[["empty_table"]])) %>%
-    dplyr::mutate(n_s_fit = purrr::pmap_dbl(.l = list(data, .data[["bin_floor"]], .data[["bin_ceiling"]]), integrate_CSD)) %>%
+    dplyr::mutate(n_s_fit = purrr::pmap_dbl(.l = list(data = .data[["data"]],
+                                                      min = .data[["bin_floor"]],
+                                                      max = .data[["bin_ceiling"]]), integrate_CSD)) %>%
     dplyr::select(-data) %>%
     dplyr::mutate(pm_s = .data[["n_s_fit"]]/.data[["total_abun"]]) %>%
     dplyr::rename(m = .data[["bin_mid"]]) %>%
     dplyr::mutate(norm_density = .data[["n_s_fit"]]/.data[["bin_width"]]) %>%
-    dplyr::mutate(density = {"n_s_fit"}) %>%
-    dplyr::select(.data[["group"]], .data[["m"]], .data[["norm_density"]], .data[["density"]])
+    dplyr::mutate(density = .data[["n_s_fit"]]) %>%
+    dplyr::select(.data[[group_var]], .data[["m"]], .data[["norm_density"]], .data[["density"]])
+
 
 }

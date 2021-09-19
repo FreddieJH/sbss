@@ -9,19 +9,21 @@
 #' @return A ggplot figure
 #' @export
 plot_CSS <- function(data, normalised = T, logbase = 2){
-  data %>%
-    dplyr::mutate(y = dplyr::case_when(normalised == T ~ {{ "norm_density" }},
-                                normalised == F + {{ "density" }})) %>%
+
+  data |>
+    rowwise() |>
+    dplyr::mutate(y = ifelse(normalised, .data[["norm_density"]], .data[["density"]])) %>%
     ggplot2::ggplot() +
-    ggplot2::aes(log({{ "m" }}, base = logbase), log({{ "y" }}, base = logbase)) +
+    ggplot2::aes(log(.data[["m"]], base = logbase), log(.data[["y"]], base = logbase)) +
     ggplot2::geom_point() +
-    {if(!normalised) ggplot2::ylab("log(Abundance)")}+
-    {if(normalised) ggplot2::ylab("log(Normalised Abundance)")}+
+    {if (!normalised) ggplot2::ylab("log(abundance)")} +
+    {if (normalised) ggplot2::ylab("log(normalised abundance)")} +
     ggplot2::xlab("log(mass)") +
     ggplot2::theme_bw(24) +
     ggplot2::theme(strip.background = ggplot2::element_blank(),
                    strip.text.x = ggplot2::element_blank(),
                    axis.text = ggplot2::element_text(size = 14),
+                   axis.title = ggplot2::element_text(size = 20),
                    legend.position = "bottom",
                    legend.text = ggplot2::element_text(size = 20),
                    legend.title = ggplot2::element_blank(),
