@@ -4,7 +4,7 @@
 \alias{calc_CSS}
 \title{Calculate the community size spectrum}
 \usage{
-calc_CSS(data, group_var)
+calc_CSS(data, group_var, abundance_colname = "abundance")
 }
 \arguments{
 \item{data}{A tibble or dataframe with Species, rel_abun, meanlog, sdlog, Mmax, and a grouping variable (e.g. site)}

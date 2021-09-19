@@ -4,18 +4,18 @@
 \alias{integrate_CSD}
 \title{Integrate community size distribution}
 \usage{
-integrate_CSD(sdlog, meanlog, rel_abun, min, max)
+integrate_CSD(data, min, max, abundance_colname = "abundance")
 }
 \arguments{
+\item{min}{min limit of integration}
+
+\item{max}{max limit of integration}
+
 \item{sdlog}{table with}
 
 \item{meanlog}{table with}
 
 \item{rel_abun}{table with}
-
-\item{min}{min limit of integration}
-
-\item{max}{max limit of integration}
 }
 \value{
 integral of function

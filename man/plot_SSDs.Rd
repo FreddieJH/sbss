@@ -4,14 +4,14 @@
 \alias{plot_SSDs}
 \title{Plot species size distributions}
 \usage{
-plot_SSDs(data, log = F, logbase = NA, max_x = 100, max_y = 0.5)
+plot_SSDs(data, log = F, logbase = NA, max_x = 100, max_y = 0.5, legend = T)
 }
 \arguments{
 \item{data}{Dataframe or tibble}
 
-\item{log}{Logical arument for logged axes}
+\item{log}{Logical argument for logged axes}
 
-\item{logbase}{The chosen logbase for the plotting}
+\item{logbase}{The chosen log base for the plotting}
 
 \item{max_x}{Numeric value determining the limit of the x-axis}
 

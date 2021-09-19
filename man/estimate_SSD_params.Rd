@@ -4,7 +4,12 @@
 \alias{estimate_SSD_params}
 \title{Estimate species size distribuion (SSD)}
 \usage{
-estimate_SSD_params(x)
+estimate_SSD_params(
+  x,
+  meanlog_slope = 0.781,
+  meanlog_intercept = -1.01,
+  sdlog = 0.995
+)
 }
 \arguments{
 \item{x}{A tibble or dataframe with Lmax, a and b}

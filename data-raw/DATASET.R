@@ -1,14 +1,24 @@
 ## code to prepare `DATASET` dataset goes here
 
 set.seed(1)
-example_species <-
+example_data <-
   tibble::tibble(Species =
-                   sample(x = sbss::load_taxalist() |> dplyr::pull(Species),
+                   sample(x =
+                            sbss::load_taxalist() |>
+                            dplyr::filter(Class %in% c("Actinopteri",
+                                                       "Asteroidea",
+                                                       "Gastropoda",
+                                                       "Elasmobranchii",
+                                                       "Malacostraca",
+                                                       "Echinoidea")) |>
+                            dplyr::pull(Species),
                           size = 20,
-                          replace = F)
+                          replace = F),
+                 abundance = rpois(n = 20, lambda = 4),
+                 site = "A"
   )
 
-usethis::use_data(example_species, overwrite = TRUE)
+usethis::use_data(example_data, overwrite = TRUE)
 
 
 # Internal data ================================================================
