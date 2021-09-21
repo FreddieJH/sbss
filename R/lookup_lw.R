@@ -5,14 +5,17 @@
 #' If no appropriate length-weight estimate is available for a species, the mean
 #' for a lower taxonomic level will be used
 #'
-#' @param spp_table tibble or dataframe with a column of species names (species_name) and a column of lmax (species_lmax)
+#' @param df tibble or dataframe, must contain a column of species names
+#' @param spp_colname character, the name of the column containing the species names
 #' @param full_load logical, if TRUE will load from Fishbase and Sealifebase
 #'
 #' @return tibble of length-weight variables
 #' @export
 #' @import rlang
 #' @import dplyr
-lookup_lw <- function(spp_table, full_load = T) {
+find_lw <- function(df, spp_colname = "species_name", full_load = T) {
+
+  if (spp_colname %in% names(df) == FALSE) stop("spp_colname must be the name of a column in the dataframe.")
 
   lw_table <-
     if (full_load) {
@@ -29,43 +32,41 @@ lookup_lw <- function(spp_table, full_load = T) {
       sbss::taxa_tbl
     }
 
-    group_lw_est <- function(lw_table, taxa_table, groupvar = "Species"){
+  group_lw_est <- function(lw_table, taxa_table, groupvar = "species_name"){
 
-      lw_table %>%
-        left_join(taxa_table, by = "Species") %>%
-        group_by_at(groupvar)  %>%
-        summarise(a = mean(.data[["a"]], na.rm = T),
-                         b = mean(.data[["b"]], na.rm = T),
-                         .groups = "drop") %>%
-        rename(!!paste0(groupvar, "_a") := .data[["a"]],
-                      !!paste0(groupvar, "_b") := .data[["b"]])
+    lw_table %>%
+      left_join(taxa_table, by = "species_name") %>%
+      group_by_at(groupvar)  %>%
+      summarise(a = mean(.data[["a"]], na.rm = T),
+                b = mean(.data[["b"]], na.rm = T),
+                .groups = "drop") %>%
+      rename(!!paste0(groupvar, "_a") := .data[["a"]],
+             !!paste0(groupvar, "_b") := .data[["b"]])
 
-    }
+  }
 
-    estimated_lw <-
-      spp_table %>%
-      left_join(taxa_table, by = "Species") %>%
-      left_join(group_lw_est(lw_table, taxa_table, groupvar = "Species"), by = "Species") %>%
-      left_join(group_lw_est(lw_table, taxa_table, groupvar = "Genus"), by = "Genus") %>%
-      left_join(group_lw_est(lw_table, taxa_table, groupvar = "Order"), by = "Order") %>%
-      left_join(group_lw_est(lw_table, taxa_table, groupvar = "Class"), by = "Class") %>%
-      left_join(group_lw_est(lw_table, taxa_table, groupvar = "Phylum"), by = "Phylum") %>%
-      left_join(group_lw_est(lw_table, taxa_table, groupvar = "Kingdom"), by = "Kingdom") %>%
-      mutate(a = coalesce(.data[["Species_a"]],
-                          .data[["Genus_a"]],
-                          .data[["Order_a"]],
-                          .data[["Class_a"]],
-                          .data[["Phylum_a"]],
-                          .data[["Kingdom_a"]]),
-             b = coalesce(.data[["Species_b"]],
-                          .data[["Genus_b"]],
-                          .data[["Order_b"]],
-                          .data[["Class_b"]],
-                          .data[["Phylum_b"]],
-                          .data[["Kingdom_b"]])) %>%
-      select(names(spp_table), .data[["a"]], .data[["b"]])
 
-    spp_table %>%
-      left_join(estimated_lw)
+  df %>%
+    mutate(species_name = .data[[spp_colname]]) |>
+    left_join(taxa_table, by = "species_name") %>%
+    left_join(group_lw_est(lw_table, taxa_table, groupvar = "species_name"), by = "species_name") %>%
+    left_join(group_lw_est(lw_table, taxa_table, groupvar = "genus"), by = "genus") %>%
+    left_join(group_lw_est(lw_table, taxa_table, groupvar = "order"), by = "order") %>%
+    left_join(group_lw_est(lw_table, taxa_table, groupvar = "class"), by = "class") %>%
+    left_join(group_lw_est(lw_table, taxa_table, groupvar = "phylum"), by = "phylum") %>%
+    left_join(group_lw_est(lw_table, taxa_table, groupvar = "kingdom"), by = "kingdom") %>%
+    mutate(a = coalesce(.data[["species_name_a"]],
+                        .data[["genus_a"]],
+                        .data[["order_a"]],
+                        .data[["class_a"]],
+                        .data[["phylum_a"]],
+                        .data[["kingdom_a"]]),
+           b = coalesce(.data[["species_name_b"]],
+                        .data[["genus_b"]],
+                        .data[["order_b"]],
+                        .data[["class_b"]],
+                        .data[["phylum_b"]],
+                        .data[["kingdom_b"]])) %>%
+    select(names(df), .data[["a"]], .data[["b"]])
 
 }

@@ -8,7 +8,7 @@
 #' @param logbase The chosen logbase for the plotting
 #' @return A ggplot figure
 #' @export
-plot_CSS <- function(data, normalised = T, logbase = 2){
+plot_css <- function(data, normalised = T, logbase = 2){
 
   data |>
     rowwise() |>

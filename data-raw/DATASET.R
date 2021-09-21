@@ -2,7 +2,7 @@
 
 set.seed(1)
 example_data <-
-  tibble::tibble(Species =
+  tibble::tibble(species_name =
                    sample(x =
                             sbss::load_taxalist() |>
                             dplyr::filter(Class %in% c("Actinopteri",

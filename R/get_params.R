@@ -16,19 +16,20 @@ load_lw <- function(){
     length_weight(server = "sealifebase") %>%
     as_tibble() %>%
     select(.data[["Species"]],
-                  .data[["a"]],
-                  .data[["b"]])
+           .data[["a"]],
+           .data[["b"]])
 
 
   fb <-
     length_weight(server = "fishbase") %>%
     as_tibble() %>%
     select(.data[["Species"]],
-                  .data[["a"]],
-                  .data[["b"]])
+           .data[["a"]],
+           .data[["b"]])
 
   bind_rows(slb, fb) %>%
-    as_tibble()
+    as_tibble() |>
+    rename(species_name = Species)
 
 }
 
@@ -42,33 +43,36 @@ load_lw <- function(){
 #' @import rlang
 #' @import dplyr
 #' @importFrom rfishbase load_taxa
+#' @importFrom janitor clean_names
 load_taxalist <- function(){
 
   slb <-
     load_taxa(server = "sealifebase") |>
     as_tibble() |>
     select(.data[["Species"]],
-                  .data[["Genus"]],
-                  .data[["Family"]],
-                  .data[["Order"]],
-                  .data[["Class"]],
-                  .data[["Phylum"]],
-                  .data[["Kingdom"]])
+           .data[["Genus"]],
+           .data[["Family"]],
+           .data[["Order"]],
+           .data[["Class"]],
+           .data[["Phylum"]],
+           .data[["Kingdom"]])
 
   fb <-
     load_taxa(server = "fishbase") |>
     as_tibble() |>
     mutate(Phylum = "Chordata",
-                  Kingdom = "Animalia") |>
+           Kingdom = "Animalia") |>
     select(.data[["Species"]],
-                  .data[["Genus"]],
-                  .data[["Family"]],
-                  .data[["Order"]],
-                  .data[["Class"]],
-                  .data[["Phylum"]],
-                  .data[["Kingdom"]])
+           .data[["Genus"]],
+           .data[["Family"]],
+           .data[["Order"]],
+           .data[["Class"]],
+           .data[["Phylum"]],
+           .data[["Kingdom"]])
 
-  bind_rows(slb, fb)
+  bind_rows(slb, fb) |>
+    janitor::clean_names() |>
+    rename(species_name = species)
 
 }
 
@@ -88,15 +92,17 @@ load_lmax <- function(){
 
   slb <-
     popchar(server = "sealifebase") |>
-    mutate(Lmax = as.numeric(Lmax)) |>
-    select(.data[["Species"]], .data[["Lmax"]])
+    mutate(lmax = as.numeric(Lmax)) |>
+    select(.data[["Species"]], .data[["lmax"]])
 
   fb <-
     popchar(server = "fishbase") |>
-    mutate(Lmax = as.numeric(.data[["Lmax"]])) |>
-    select(.data[["Species"]], .data[["Lmax"]])
+    mutate(lmax = as.numeric(Lmax)) |>
+    suppressWarnings() |> # currently a single incorrect Lmax value in this df
+    select(.data[["Species"]], .data[["lmax"]])
 
-  bind_rows(slb, fb)
+  bind_rows(slb, fb) |>
+    rename(species_name = Species)
 
 }
 

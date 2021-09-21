@@ -40,42 +40,49 @@ devtools::install_github("freddiejh/sbss")
 
 library(sbss)
 
-# Get asymptotic mass values for a list of species (column in tibble)
+# An example dataset
+example_data
+
+# Get asymptotic mass values for a list of species (column in dataframe or tibble)
 example_data |> 
-  lookup_lmax(full_load = F)
+  find_lmax(spp_colname = "species_name", full_load = F)
 
 
-# Get length-weight parameter (a, b) estimates for a list of species
+# Get length-weight parameter (a, b) estimates for a list of species (column in dataframe or tibble)
 example_data |> 
-  lookup_lw(full_load = F)
+  find_lw(spp_colname = "species_name", full_load = F)
 
-
+# Estimate the lognormal parameters (meanlog and sdlog) based on the asymptotic mass of the species
 example_data |> 
-  lookup_lmax(full_load = F) |> 
-  lookup_lw(full_load = F) |> 
-  estimate_SSD_params()
+  find_lmax(spp_colname = "species_name", full_load = F) |> 
+  find_lw(spp_colname = "species_name", full_load = F) |> 
+  est_ssd(meanlog_eqn = \(m_max) 0.781*log(m_max) - 1.01,
+          sdlog_eqn = \(m_max) 0.995)
 
-
+# Calculate the community size spectrum based on the weighted summation of the species size distributions 
 example_data |> 
-  lookup_lmax(full_load = F) |> 
-  lookup_lw(full_load = F) |> 
-  estimate_SSD_params() |> 
-  calc_CSS(group_var = "site")
+  find_lmax(full_load = F) |> 
+  find_lw(full_load = F) |> 
+  est_ssd(meanlog_eqn = \(m_max) 0.781*log(m_max) - 1.01,
+          sdlog_eqn = \(m_max) 0.995) |> 
+  calc_css(group_var = "site")
 
-
+# Plot the community size spectrum
 example_data |> 
-  lookup_lmax(full_load = F) |> 
-  lookup_lw(full_load = F) |> 
-  estimate_SSD_params() |> 
-  calc_CSS(group_var = "site") |> 
-  plot_CSS()
+  find_lmax(full_load = F) |> 
+  find_lw(full_load = F) |> 
+  est_ssd(meanlog_eqn = \(m_max) 0.781*log(m_max) - 1.01,
+          sdlog_eqn = \(m_max) 0.995) |> 
+  calc_css(group_var = "site") |> 
+  plot_css()
 
-
+# Visualise the individual species size distributions
 example_data |> 
-  lookup_lmax(full_load = F) |> 
-  lookup_lw(full_load = F) |> 
-  estimate_SSD_params() |> 
-  plot_SSDs(legend = F) 
+  find_lmax(full_load = F) |> 
+  find_lw(full_load = F) |> 
+  est_ssd(meanlog_eqn = \(m_max) 0.781*log(m_max) - 1.01,
+          sdlog_eqn = \(m_max) 0.995) |> 
+  plot_ssd(legend = F) 
 
 
 ```
